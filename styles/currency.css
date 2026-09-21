@@ -1,0 +1,19 @@
+/* Скрываем стандартные валюты в чарлисте */
+label:has(input[name="system.currency.pp"]),
+label:has(input[name="system.currency.gp"]),
+label:has(input[name="system.currency.ep"]),
+label:has(input[name="system.currency.sp"]),
+label:has(input[name="system.currency.cp"]) {
+    display: none;
+}
+
+
+/* Скрываем стандартные валюты
+   в окне "Управление деньгами" */
+label:has(input[name="amount.pp"]),
+label:has(input[name="amount.gp"]),
+label:has(input[name="amount.ep"]),
+label:has(input[name="amount.sp"]),
+label:has(input[name="amount.cp"]) {
+    display: none;
+}

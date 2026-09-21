@@ -1,0 +1,64 @@
+{
+  "id": "zbl",
+  "title": "ZBL",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "esmodules": [
+    "scripts/main.js",
+    "scripts/skills.js",
+    "scripts/currency.js"
+  ],
+  "styles": [
+        "styles/currency.css"
+    ],
+  "languages": [
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "lang/ru.json",
+      "flags": {}
+    }
+  ],
+  "flags": {
+    "canUpload": true
+  },
+  "packs": [
+    {
+      "name": "zbl-lore",
+      "label": "Лор",
+      "path": "packs/zbl-lore",
+      "type": "JournalEntry",
+      "system": "dnd5e",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "zbl-bestiary",
+      "label": "Бестиарий",
+      "path": "packs/zbl-bestiary",
+      "type": "Actor",
+      "system": "dnd5e",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "zbl-artifacts",
+      "label": "Артефакты",
+      "path": "packs/zbl-artifacts",
+      "type": "Item",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "system": "dnd5e"
+    }
+  ],
+  "description": ""
+}
