@@ -9,10 +9,12 @@
   "esmodules": [
     "scripts/main.js",
     "scripts/skills.js",
-    "scripts/currency.js"
+    "scripts/currency.js",
+    "scripts/migration.js"
   ],
   "styles": [
-        "styles/currency.css"
+        "styles/currency.css",
+        "styles/migration.css"
     ],
   "languages": [
     {

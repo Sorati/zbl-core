@@ -1,0 +1,190 @@
+<div class="zbl-currency-migration">
+
+    <!-- ================================================= -->
+    <!-- ОПИСАНИЕ                                         -->
+    <!-- ================================================= -->
+
+    <div class="zbl-migration-description">
+
+        <p>
+            Эта опция проверит все предметы в мире
+            и переведёт цены со стандартной валюты
+            D&D5e на валюту этого сеттинга.
+        </p>
+
+        <p>
+            Предметы, которые уже используют ЯС,
+            ХН или НК, будут пропущены.
+        </p>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- ПРОГРЕСС                                         -->
+    <!-- ================================================= -->
+
+    <div
+        class="zbl-migration-progress"
+        style="display: none;"
+    >
+
+        <p class="zbl-progress-status">
+            Выполняется миграция...
+        </p>
+
+
+        <div class="zbl-progress-wrapper">
+
+            <div
+                class="zbl-progress-bar"
+                style="width: 0%;"
+            ></div>
+
+        </div>
+
+
+        <div class="zbl-progress-info">
+
+            <span>
+                Проверено:
+                <strong class="zbl-progress-count">
+                    0 / 0
+                </strong>
+            </span>
+
+
+            <span>
+                <strong class="zbl-progress-percent">
+                    0%
+                </strong>
+            </span>
+
+        </div>
+
+
+        <div class="zbl-progress-stats">
+
+            <div>
+                Изменено:
+                <strong class="zbl-migrated-count">
+                    0
+                </strong>
+            </div>
+
+
+            <div>
+                Пропущено:
+                <strong class="zbl-skipped-count">
+                    0
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- РЕЗУЛЬТАТ                                         -->
+    <!-- ================================================= -->
+
+    <div
+        class="zbl-migration-results"
+        style="display: none;"
+    >
+
+        <h3>
+            Миграция завершена
+        </h3>
+
+
+        <div class="zbl-result-row">
+
+            <span>
+                Проверено:
+            </span>
+
+            <strong class="zbl-result-total">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="zbl-result-row">
+
+            <span>
+                Изменено:
+            </span>
+
+            <strong class="zbl-result-migrated">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="zbl-result-row">
+
+            <span>
+                Пропущено:
+            </span>
+
+            <strong class="zbl-result-skipped">
+                0
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- ОШИБКА                                            -->
+    <!-- ================================================= -->
+
+    <div
+        class="zbl-migration-error"
+        style="display: none;"
+    >
+
+        <h3>
+            При миграции произошла ошибка
+        </h3>
+
+
+        <p class="zbl-error-message"></p>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- КНОПКИ                                            -->
+    <!-- ================================================= -->
+
+    <div class="zbl-migration-buttons">
+
+        <button
+            type="button"
+            class="zbl-start-migration"
+        >
+            <i class="fas fa-coins"></i>
+
+            Запустить миграцию
+
+        </button>
+
+
+        <button
+            type="button"
+            class="zbl-close-migration"
+            style="display: none;"
+            onclick="this.closest('.app').querySelector('[data-action=close]')?.click()"
+        >
+            Закрыть
+        </button>
+
+    </div>
+
+</div>
