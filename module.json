@@ -1,6 +1,6 @@
 {
-  "id": "zbl",
-  "title": "ZBL",
+  "id": "zbl-core",
+  "title": "ZBL-Core",
   "version": "1.0.0",
   "compatibility": {
     "minimum": "13",
@@ -27,40 +27,5 @@
   "flags": {
     "canUpload": true
   },
-  "packs": [
-    {
-      "name": "zbl-lore",
-      "label": "Лор",
-      "path": "packs/zbl-lore",
-      "type": "JournalEntry",
-      "system": "dnd5e",
-      "ownership": {
-        "PLAYER": "OBSERVER",
-        "ASSISTANT": "OWNER"
-      }
-    },
-    {
-      "name": "zbl-bestiary",
-      "label": "Бестиарий",
-      "path": "packs/zbl-bestiary",
-      "type": "Actor",
-      "system": "dnd5e",
-      "ownership": {
-        "PLAYER": "OBSERVER",
-        "ASSISTANT": "OWNER"
-      }
-    },
-    {
-      "name": "zbl-artifacts",
-      "label": "Артефакты",
-      "path": "packs/zbl-artifacts",
-      "type": "Item",
-      "ownership": {
-        "PLAYER": "OBSERVER",
-        "ASSISTANT": "OWNER"
-      },
-      "system": "dnd5e"
-    }
-  ],
   "description": ""
 }
