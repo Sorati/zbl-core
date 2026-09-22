@@ -7,14 +7,10 @@
     "verified": "13"
   },
   "esmodules": [
-    "scripts/main.js",
-    "scripts/skills.js",
-    "scripts/currency.js",
-    "scripts/migration.js"
+    "scripts/main.js"
   ],
   "styles": [
-        "styles/currency.css",
-        "styles/migration.css"
+        "styles/currency.css"
     ],
   "languages": [
     {

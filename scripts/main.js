@@ -1,18 +1,7 @@
-Hooks.once("init", () => {
-    // game.settings.register(
-    //     "zbl",
-    //     "currencyMigrationVersion",
-    //     {
-    //         name: "Версия миграции валюты",
-    //         scope: "world",
-    //         config: false,
-    //         type: Number,
-    //         default: 0
-    //     }
-    // );
-    console.log("Земли Былых Легенд");
+import "./skills.js";
+import "./currency.js";
+import "./migration.js";
 
-    console.log(
-        "ZBL | Система автоматической миграции цен загружена."
-    );
+Hooks.once("init", () => {
+    console.log("ZBL-Core | Земли Былых Легенд загружены.");
 });
