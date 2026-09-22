@@ -1,15 +1,16 @@
 /**
- * ZBL — Миграция валюты
+ * ZBL — Миграция валюты предметов
  *
- * Переводит стандартную валюту D&D5e:
+ * Автоматически переводит цену предмета
+ * из стандартной валюты D&D5e в валюту сеттинга
+ * в момент создания предмета из компендиума.
  *
+ * Старые валюты:
  * pp / gp / ep / sp / cp
  *
- * в валюту сеттинга:
- *
+ * Новые валюты:
  * yas / hanas / naka
  */
-
 
 // ============================================================
 // НАСТРОЙКИ
@@ -31,7 +32,7 @@ const ZBL_NEW_CURRENCIES = [
 
 
 // ============================================================
-// ПЕРЕВОД СТАРОЙ ВАЛЮТЫ В ЗОЛОТО
+// СООТНОШЕНИЕ СТАРОЙ ВАЛЮТЫ К ЗОЛОТУ
 // ============================================================
 
 const ZBL_TO_GP = {
@@ -56,8 +57,8 @@ function zblConvertPrice(value, denomination) {
         return null;
     }
 
-    // Если неизвестная валюта — ничего не делаем.
-    if (!ZBL_TO_GP.hasOwnProperty(denomination)) {
+    // Неизвестная валюта.
+    if (!Object.hasOwn(ZBL_TO_GP, denomination)) {
         return null;
     }
 
@@ -66,11 +67,22 @@ function zblConvertPrice(value, denomination) {
 
 
     // --------------------------------------------------------
-    // Всё дешевле 1 зм → 1 НК
+    // Меньше 1 зм
+    // --------------------------------------------------------
+    //
+    // Согласно нашей таблице:
+    //
+    // 1 мм → 1 НК
+    // 2 мм → 1 НК
+    // 4 мм → 1 НК
+    // 1 см → 1 НК
+    // 2 см → 1 НК
+    // 5 см → 1 НК
+    //
+    // Поэтому всё дешевле 1 зм превращаем минимум в 1 НК.
     // --------------------------------------------------------
 
     if (gpValue < 1) {
-
         return {
             value: 1,
             denomination: "naka"
@@ -79,16 +91,19 @@ function zblConvertPrice(value, denomination) {
 
 
     // --------------------------------------------------------
-    // 100 зм → ЯС
+    // ЯС
+    // --------------------------------------------------------
     //
-    // Используем ЯС только если сумма делится на 100.
+    // 100 зм = 1 ЯС
+    //
+    // Используем ЯС только если стоимость
+    // полностью делится на 100.
     // --------------------------------------------------------
 
     if (
         gpValue >= 100 &&
         gpValue % 100 === 0
     ) {
-
         return {
             value: gpValue / 100,
             denomination: "yas"
@@ -97,16 +112,19 @@ function zblConvertPrice(value, denomination) {
 
 
     // --------------------------------------------------------
-    // 10 зм → ХН
+    // ХАНАС
+    // --------------------------------------------------------
     //
-    // Используем ХН только если сумма делится на 10.
+    // 10 зм = 1 ХН
+    //
+    // Используем ХН только если стоимость
+    // полностью делится на 10.
     // --------------------------------------------------------
 
     if (
         gpValue >= 10 &&
         gpValue % 10 === 0
     ) {
-
         return {
             value: gpValue / 10,
             denomination: "hanas"
@@ -115,7 +133,17 @@ function zblConvertPrice(value, denomination) {
 
 
     // --------------------------------------------------------
-    // Остальное → НК
+    // НАКА
+    // --------------------------------------------------------
+    //
+    // Всё остальное переводим в НК.
+    //
+    // Например:
+    //
+    // 3 зм → 3 НК
+    // 7 зм → 7 НК
+    // 15 зм → 15 НК
+    // 25 зм → 25 НК
     // --------------------------------------------------------
 
     return {
@@ -126,18 +154,50 @@ function zblConvertPrice(value, denomination) {
 
 
 // ============================================================
-// МИГРАЦИЯ ОДНОГО ПРЕДМЕТА
+// ПРОВЕРКА: ПРЕДМЕТ ИЗ КОМПЕНДИУМА?
 // ============================================================
 
-async function zblMigrateItem(item) {
+function zblIsCompendiumItem(data) {
 
-    const price = item.system?.price;
+    // Основной современный источник.
+    if (data?._stats?.compendiumSource) {
+        return true;
+    }
 
-    // У предмета нет цены.
+    // Резервный вариант для совместимости
+    // со старыми/нестандартными источниками.
+    if (data?.flags?.core?.sourceId) {
+        return true;
+    }
+
+    return false;
+}
+
+
+// ============================================================
+// МИГРАЦИЯ ЦЕНЫ ПРИ СОЗДАНИИ ITEM
+// ============================================================
+
+Hooks.on("preCreateItem", (item, data, options, userId) => {
+
+    // --------------------------------------------------------
+    // Нас интересуют только предметы,
+    // которые создаются из компендиума.
+    // --------------------------------------------------------
+
+    if (!zblIsCompendiumItem(data)) {
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Получаем цену.
+    // --------------------------------------------------------
+
+    const price = data.system?.price;
+
     if (!price) {
-        return {
-            status: "skipped"
-        };
+        return;
     }
 
 
@@ -145,44 +205,46 @@ async function zblMigrateItem(item) {
     const denomination = price.denomination;
 
 
-    // Нет нормальной стоимости.
+    // --------------------------------------------------------
+    // Проверяем корректность цены.
+    // --------------------------------------------------------
+
     if (
         !Number.isFinite(value) ||
         value <= 0
     ) {
-
-        return {
-            status: "skipped"
-        };
+        return;
     }
 
 
     // --------------------------------------------------------
-    // Предмет уже использует валюту сеттинга.
+    // Если предмет уже использует валюту сеттинга —
+    // НИЧЕГО НЕ ДЕЛАЕМ.
     // --------------------------------------------------------
 
     if (ZBL_NEW_CURRENCIES.includes(denomination)) {
 
-        return {
-            status: "skipped"
-        };
+        console.log(
+            `ZBL | ${data.name}: ` +
+            `валюта уже является валютой сеттинга (${denomination}), пропуск.`
+        );
+
+        return;
     }
 
 
     // --------------------------------------------------------
-    // Это не старая валюта D&D.
+    // Если это вообще не стандартная валюта D&D5e —
+    // тоже ничего не делаем.
     // --------------------------------------------------------
 
     if (!ZBL_OLD_CURRENCIES.includes(denomination)) {
-
-        return {
-            status: "skipped"
-        };
+        return;
     }
 
 
     // --------------------------------------------------------
-    // Рассчитываем новую цену.
+    // Конвертируем цену.
     // --------------------------------------------------------
 
     const newPrice = zblConvertPrice(
@@ -190,548 +252,35 @@ async function zblMigrateItem(item) {
         denomination
     );
 
-
     if (!newPrice) {
-
-        return {
-            status: "skipped"
-        };
+        return;
     }
 
 
     // --------------------------------------------------------
-    // Обновляем предмет.
+    // Изменяем ДАННЫЕ ДО СОЗДАНИЯ предмета.
+    //
+    // Это важно:
+    //
+    // мы не создаём предмет сначала со старой ценой,
+    // а потом обновляем его.
+    //
+    // Foundry сразу создаст его с правильной ценой.
     // --------------------------------------------------------
 
-    await item.update({
+    item.updateSource({
         "system.price.value": newPrice.value,
         "system.price.denomination": newPrice.denomination
     });
 
 
+    // --------------------------------------------------------
+    // Лог в консоль.
+    // --------------------------------------------------------
+
     console.log(
-        `ZBL | ${item.name}: ` +
+        `ZBL | Миграция цены: ${data.name} | ` +
         `${value} ${denomination} → ` +
         `${newPrice.value} ${newPrice.denomination}`
     );
-
-
-    return {
-        status: "migrated",
-        oldValue: value,
-        oldDenomination: denomination,
-        newValue: newPrice.value,
-        newDenomination: newPrice.denomination
-    };
-}
-
-
-// ============================================================
-// СОБИРАЕМ ВСЕ ПРЕДМЕТЫ
-// ============================================================
-
-function zblCollectItems() {
-
-    const items = [];
-
-
-    // --------------------------------------------------------
-    // Предметы мира
-    // --------------------------------------------------------
-
-    for (const item of game.items) {
-
-        items.push({
-            item,
-            source: "world"
-        });
-    }
-
-
-    // --------------------------------------------------------
-    // Предметы актёров
-    // --------------------------------------------------------
-
-    for (const actor of game.actors) {
-
-        for (const item of actor.items) {
-
-            items.push({
-                item,
-                source: "actor"
-            });
-        }
-    }
-
-
-    return items;
-}
-
-
-// ============================================================
-// ЗАДЕРЖКА ДЛЯ ОБНОВЛЕНИЯ ИНТЕРФЕЙСА
-// ============================================================
-
-function zblYield() {
-
-    return new Promise(resolve => {
-
-        requestAnimationFrame(() => {
-
-            resolve();
-
-        });
-
-    });
-}
-
-
-// ============================================================
-// ЗАПУСК МИГРАЦИИ
-// ============================================================
-
-async function zblRunCurrencyMigration(updateProgress) {
-
-    const entries = zblCollectItems();
-
-    const total = entries.length;
-
-    let checked = 0;
-    let migrated = 0;
-    let skipped = 0;
-
-
-    console.log(
-        `ZBL | Начинаем миграцию. ` +
-        `Всего предметов: ${total}`
-    );
-
-
-    // --------------------------------------------------------
-    // Если вообще нет предметов.
-    // --------------------------------------------------------
-
-    if (total === 0) {
-
-        if (updateProgress) {
-
-            updateProgress({
-                checked: 0,
-                total: 0,
-                migrated: 0,
-                skipped: 0,
-                percent: 100
-            });
-        }
-
-
-        return {
-            total: 0,
-            checked: 0,
-            migrated: 0,
-            skipped: 0
-        };
-    }
-
-
-    // --------------------------------------------------------
-    // Проверяем каждый предмет.
-    // --------------------------------------------------------
-
-    for (const entry of entries) {
-
-        try {
-
-            const result =
-                await zblMigrateItem(entry.item);
-
-
-            if (result.status === "migrated") {
-
-                migrated++;
-
-            }
-            else {
-
-                skipped++;
-            }
-
-        }
-        catch (error) {
-
-            console.error(
-                `ZBL | Ошибка при миграции предмета "${entry.item.name}"`,
-                error
-            );
-
-            skipped++;
-        }
-
-
-        checked++;
-
-
-        // ----------------------------------------------------
-        // Рассчитываем прогресс.
-        // ----------------------------------------------------
-
-        const percent =
-            Math.round(
-                (checked / total) * 100
-            );
-
-
-        // ----------------------------------------------------
-        // Передаём прогресс интерфейсу.
-        // ----------------------------------------------------
-
-        if (updateProgress) {
-
-            updateProgress({
-                checked,
-                total,
-                migrated,
-                skipped,
-                percent
-            });
-        }
-
-
-        // ----------------------------------------------------
-        // Даём браузеру обновить интерфейс.
-        //
-        // Особенно важно при большом количестве предметов.
-        // ----------------------------------------------------
-
-        if (
-            checked % 5 === 0 ||
-            checked === total
-        ) {
-
-            await zblYield();
-        }
-    }
-
-
-    console.log(
-        `ZBL | Миграция завершена. ` +
-        `Проверено: ${checked}, ` +
-        `изменено: ${migrated}, ` +
-        `пропущено: ${skipped}`
-    );
-
-
-    return {
-        total,
-        checked,
-        migrated,
-        skipped
-    };
-}
-
-
-// ============================================================
-// ОКНО МИГРАЦИИ
-// ============================================================
-
-class ZBLCurrencyMigrationMenu extends FormApplication {
-
-
-    static get defaultOptions() {
-
-        return foundry.utils.mergeObject(
-            super.defaultOptions,
-            {
-                id: "zbl-currency-migration",
-                title: "Миграция валюты",
-                width: 500,
-                height: "auto",
-                closeOnSubmit: false,
-                submitOnChange: false
-            }
-        );
-    }
-
-
-    get template() {
-
-        return "modules/zbl/templates/currency-migration.html";
-    }
-
-
-    getData() {
-
-        return {
-            running: false
-        };
-    }
-
-
-    activateListeners(html) {
-
-        super.activateListeners(html);
-
-
-        html.find(
-            ".zbl-start-migration"
-        ).on(
-            "click",
-            () => this._startMigration()
-        );
-    }
-
-
-    async _startMigration() {
-
-        // Не допускаем повторного запуска
-        // одновременно.
-
-        if (this._migrationRunning) {
-            return;
-        }
-
-
-        this._migrationRunning = true;
-
-
-        const button =
-            this.element.find(
-                ".zbl-start-migration"
-            );
-
-
-        button.prop(
-            "disabled",
-            true
-        );
-
-
-        // Показываем блок прогресса.
-
-        const progress =
-            this.element.find(
-                ".zbl-migration-progress"
-            );
-
-
-        progress.show();
-
-
-        // Скрываем начальный текст.
-
-        this.element.find(
-            ".zbl-migration-description"
-        ).hide();
-
-
-        try {
-
-            const result =
-                await zblRunCurrencyMigration(
-                    data => this._updateProgress(data)
-                );
-
-
-            this._showResults(result);
-
-        }
-        catch (error) {
-
-            console.error(
-                "ZBL | Критическая ошибка миграции.",
-                error
-            );
-
-
-            this._showError(error);
-
-        }
-        finally {
-
-            this._migrationRunning = false;
-        }
-    }
-
-
-    _updateProgress(data) {
-
-        const root = this.element;
-
-        if (!root?.length) {
-            return;
-        }
-
-
-        // ----------------------------------------------------
-        // Progress bar
-        // ----------------------------------------------------
-
-        root.find(
-            ".zbl-progress-bar"
-        ).css(
-            "width",
-            `${data.percent}%`
-        );
-
-
-        // ----------------------------------------------------
-        // Процент
-        // ----------------------------------------------------
-
-        root.find(
-            ".zbl-progress-percent"
-        ).text(
-            `${data.percent}%`
-        );
-
-
-        // ----------------------------------------------------
-        // Счётчик
-        // ----------------------------------------------------
-
-        root.find(
-            ".zbl-progress-count"
-        ).text(
-            `${data.checked} / ${data.total}`
-        );
-
-
-        // ----------------------------------------------------
-        // Изменено
-        // ----------------------------------------------------
-
-        root.find(
-            ".zbl-migrated-count"
-        ).text(
-            data.migrated
-        );
-
-
-        // ----------------------------------------------------
-        // Пропущено
-        // ----------------------------------------------------
-
-        root.find(
-            ".zbl-skipped-count"
-        ).text(
-            data.skipped
-        );
-    }
-
-
-    _showResults(result) {
-
-        const root = this.element;
-
-
-        root.find(
-            ".zbl-migration-progress"
-        ).hide();
-
-
-        root.find(
-            ".zbl-migration-results"
-        ).show();
-
-
-        root.find(
-            ".zbl-result-total"
-        ).text(
-            result.total
-        );
-
-
-        root.find(
-            ".zbl-result-migrated"
-        ).text(
-            result.migrated
-        );
-
-
-        root.find(
-            ".zbl-result-skipped"
-        ).text(
-            result.skipped
-        );
-
-
-        root.find(
-            ".zbl-start-migration"
-        ).hide();
-
-
-        root.find(
-            ".zbl-close-migration"
-        ).show();
-    }
-
-
-    _showError(error) {
-
-        const root = this.element;
-
-
-        root.find(
-            ".zbl-migration-progress"
-        ).hide();
-
-
-        root.find(
-            ".zbl-migration-error"
-        ).show();
-
-
-        root.find(
-            ".zbl-error-message"
-        ).text(
-            error?.message ?? String(error)
-        );
-
-
-        root.find(
-            ".zbl-close-migration"
-        ).show();
-
-
-        root.find(
-            ".zbl-start-migration"
-        ).hide();
-    }
-}
-
-
-// ============================================================
-// РЕГИСТРАЦИЯ МЕНЮ В НАСТРОЙКАХ
-// ============================================================
-
-Hooks.once(
-    "init",
-    () => {
-
-        game.settings.registerMenu(
-            "zbl",
-            "currencyMigration",
-            {
-                name: "Миграция валюты",
-
-                label: "Запустить миграцию",
-
-                hint:
-                    "Проверить предметы мира и " +
-                    "перевести их цены на валюту сеттинга.",
-
-                icon: "fas fa-coins",
-
-                type:
-                    ZBLCurrencyMigrationMenu,
-
-                restricted: true
-            }
-        );
-
-
-        console.log(
-            "ZBL | Меню миграции валюты зарегистрировано."
-        );
-    }
-);
+});
