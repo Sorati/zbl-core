@@ -10,7 +10,8 @@
     "scripts/main.js"
   ],
   "styles": [
-        "styles/currency.css"
+        "styles/currency.css",
+        "styles/zbl-lang.css"
     ],
   "languages": [
     {

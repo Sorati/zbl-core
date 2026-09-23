@@ -1,0 +1,62 @@
+section[data-application-part="traits"] {
+    display: block !important;
+}
+
+section[data-application-part="traits"]
+> fieldset {
+    box-sizing: border-box;
+    width: calc(50% - 4px);
+    margin-bottom: 8px;
+}
+
+section[data-application-part="traits"]
+> fieldset:nth-of-type(1) {
+    float: left;
+    clear: left;
+}
+
+section[data-application-part="traits"]
+> fieldset:nth-of-type(2) {
+    float: right;
+    clear: right;
+}
+
+section[data-application-part="traits"]
+> fieldset:nth-of-type(3) {
+    float: left;
+    clear: left;
+}
+
+section[data-application-part="traits"]
+> fieldset:nth-of-type(4) {
+    float: right;
+    clear: right;
+}
+
+section[data-application-part="traits"]
+> fieldset:nth-of-type(5) {
+    float: left;
+    clear: both;
+}
+
+section[data-application-part="traits"]
+> fieldset:nth-of-type(6) {
+    float: right;
+}
+
+section[data-application-part="traits"]::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+@media (max-width: 600px) {
+
+    section[data-application-part="traits"]
+    > fieldset {
+        float: none !important;
+        clear: both !important;
+        width: 100%;
+    }
+
+}
