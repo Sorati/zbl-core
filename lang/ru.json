@@ -1,6 +1,20 @@
 {
+    "ZBL.Source.Title": "Земли былых легенд: Молчание Богов",
+
     "ZBL.Skill.Animism": "Анимизм",
     "ZBL.Currency.yas": "Яс",
     "ZBL.Currency.hanas": "Ханас",
-    "ZBL.Currency.naka": "Нака"
+    "ZBL.Currency.naka": "Нака",
+
+    "ZBL.LanguageGroup": "Языки Вад-Хидека",
+
+    "ZBL.Language.avargo": "Аварго",
+    "ZBL.Language.bakiysky": "Бакийский",
+    "ZBL.Language.vadhisky": "Вадхийский",
+    "ZBL.Language.vairakhsky": "Вайрахский",
+    "ZBL.Language.erg": "Ерг",
+    "ZBL.Language.mokay": "Мокай",
+    "ZBL.Language.oirkhonsky": "Ойрхонский",
+    "ZBL.Language.alt": "Алт",
+    "ZBL.Language.kanag": "Канаг" 
 }

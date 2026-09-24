@@ -8,7 +8,8 @@ Hooks.once("init", () => {
             vairakhsky: "Вайрахский",
             erg: "Ерг",
             mokay: "Мокай",
-            oirkhonsky: "Ойрхонский"
+            oirkhonsky: "Ойрхонский",
+            alt: "Алт"
         },
         label: "Языки Вад-Хидека",
         selectable: false

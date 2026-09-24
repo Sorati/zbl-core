@@ -22,7 +22,12 @@
     }
   ],
   "flags": {
-    "canUpload": true
+    "canUpload": true,
+    "dnd5e": {
+        "sourceBooks": {
+            "ZBL": "ZBL.Source.Title"
+        }
+    }
   },
   "description": ""
 }
