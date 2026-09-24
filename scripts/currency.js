@@ -4,21 +4,21 @@ const ZBL_CURRENCIES = {
     abbreviation: "ЯС",
     conversion: 100,
     fractionalDigits: 2,
-    icon: "modules/zbl/assets/icons/currency/yas.webp"
+    icon: "modules/zbl-core/assets/icons/currency/yas.webp"
   },
 
   hanas: {
     label: "ZBL.Currency.hanas",
     abbreviation: "ХН",
     conversion: 10,
-    icon: "modules/zbl/assets/icons/currency/hanas.webp"
+    icon: "modules/zbl-core/assets/icons/currency/hanas.webp"
   },
 
   naka: {
     label: "ZBL.Currency.naka",
     abbreviation: "НК",
     conversion: 1,
-    icon: "modules/zbl/assets/icons/currency/naka.webp"
+    icon: "modules/zbl-core/assets/icons/currency/naka.webp"
   }
 };
 
