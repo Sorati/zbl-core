@@ -10,9 +10,13 @@
     "scripts/main.js"
   ],
   "styles": [
-        "styles/currency.css",
-        "styles/zbl-lang.css"
-    ],
+    {
+      "src": "styles/currency.css"
+    },
+    {
+      "src": "styles/zbl-lang.css"
+    }
+  ],
   "languages": [
     {
       "lang": "ru",
@@ -24,10 +28,33 @@
   "flags": {
     "canUpload": true,
     "dnd5e": {
-        "sourceBooks": {
-            "ZBL": "ZBL.Source.Title"
-        }
+      "sourceBooks": {
+        "ZBL": "ZBL.Source.Title"
+      }
     }
   },
+  "authors": [
+    {
+      "name": "Sorati",
+      "email": "mr.sorati.channel@gmail.com",
+      "discord": "mr.sorati",
+      "url": "https://github.com/Sorati/zbl-core",
+      "flags": {}
+    }
+  ],
+  "url": "https://github.com/Sorati/zbl-core",
+  "packs": [
+    {
+      "name": "zbl-core-nation",
+      "label": "# Народы",
+      "path": "packs/zbl-core-nation",
+      "type": "Item",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "system": "dnd5e"
+    }
+  ],
   "description": ""
 }
