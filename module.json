@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "compatibility": {
     "minimum": "13",
-    "verified": "13"
+    "verified": "13, 14",
+    "maximum": "14"
   },
   "esmodules": [
     "scripts/main.js"
@@ -49,11 +50,24 @@
       "label": "# Народы",
       "path": "packs/zbl-core-nation",
       "type": "Item",
+      "system": "dnd5e",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
       },
-      "system": "dnd5e"
+      "flags": {}
+    },
+    {
+      "name": "zbl-core-nation-features",
+      "label": "# Особенности народов",
+      "path": "packs/zbl-core-nation-features",
+      "type": "Item",
+      "system": "dnd5e",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "description": ""
