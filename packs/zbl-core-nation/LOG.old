@@ -1,5 +1,10 @@
-2026/10/09-02:35:37.735 5dac Recovering log #104
-2026/10/09-02:35:37.737 5dac Level-0 table #108: started
-2026/10/09-02:35:37.908 5dac Level-0 table #108: 858565 bytes OK
-2026/10/09-02:35:37.915 5dac Delete type=0 #104
-2026/10/09-02:35:37.915 5dac Delete type=3 #102
+2026/10/09-11:12:34.413 5ff4 Recovering log #109
+2026/10/09-11:12:34.421 5ff4 Delete type=0 #109
+2026/10/09-11:12:34.421 5ff4 Delete type=3 #107
+2026/10/09-11:50:32.799 1588 Moved #108 to level-1 858565 bytes OK: files[ 0 1 1 0 0 0 0 ]
+2026/10/09-11:56:07.865 1588 Compacting 1@1 + 1@2 files
+2026/10/09-11:56:07.884 1588 Generated table #112@1: 12 keys, 141749 bytes
+2026/10/09-11:56:07.884 1588 Compacted 1@1 + 1@2 files => 141749 bytes
+2026/10/09-11:56:07.887 1588 compacted to: files[ 0 0 1 0 0 0 0 ]
+2026/10/09-11:56:07.887 1588 Delete type=2 #106
+2026/10/09-11:56:07.887 1588 Delete type=2 #108
