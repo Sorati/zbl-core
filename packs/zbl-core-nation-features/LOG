@@ -1,3 +1,5 @@
-2026/10/08-19:19:52.113 c50 Recovering log #80
-2026/10/08-19:19:52.120 c50 Delete type=0 #80
-2026/10/08-19:19:52.120 c50 Delete type=3 #78
+2026/10/09-02:35:37.931 4fdc Recovering log #82
+2026/10/09-02:35:37.931 4fdc Level-0 table #84: started
+2026/10/09-02:35:37.934 4fdc Level-0 table #84: 9914 bytes OK
+2026/10/09-02:35:37.939 4fdc Delete type=0 #82
+2026/10/09-02:35:37.939 4fdc Delete type=3 #81
