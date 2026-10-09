@@ -1,17 +1,5 @@
-2026/10/08-19:19:52.047 5304 Recovering log #101
-2026/10/08-19:19:52.050 5304 Level-0 table #103: started
-2026/10/08-19:19:52.087 5304 Level-0 table #103: 1065982 bytes OK
-2026/10/08-19:19:52.093 5304 Delete type=0 #101
-2026/10/08-19:19:52.093 5304 Delete type=3 #99
-2026/10/08-19:33:23.933 3f54 Compacting 1@0 + 1@1 files
-2026/10/08-19:33:23.944 3f54 Generated table #105@0: 9 keys, 114363 bytes
-2026/10/08-19:33:23.944 3f54 Compacted 1@0 + 1@1 files => 114363 bytes
-2026/10/08-19:33:23.946 3f54 compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/10/08-19:33:23.946 3f54 Delete type=2 #100
-2026/10/08-19:33:23.947 3f54 Delete type=2 #103
-2026/10/09-01:18:51.416 3f54 Compacting 1@1 + 1@2 files
-2026/10/09-01:18:51.424 3f54 Generated table #106@1: 12 keys, 150088 bytes
-2026/10/09-01:18:51.425 3f54 Compacted 1@1 + 1@2 files => 150088 bytes
-2026/10/09-01:18:51.429 3f54 compacted to: files[ 0 0 1 0 0 0 0 ]
-2026/10/09-01:18:51.429 3f54 Delete type=2 #96
-2026/10/09-01:18:51.429 3f54 Delete type=2 #105
+2026/10/09-02:35:37.735 5dac Recovering log #104
+2026/10/09-02:35:37.737 5dac Level-0 table #108: started
+2026/10/09-02:35:37.908 5dac Level-0 table #108: 858565 bytes OK
+2026/10/09-02:35:37.915 5dac Delete type=0 #104
+2026/10/09-02:35:37.915 5dac Delete type=3 #102
