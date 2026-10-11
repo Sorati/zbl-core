@@ -44,6 +44,44 @@
     }
   ],
   "url": "https://github.com/Sorati/zbl-core",
+  "packFolders": [
+    {
+      "name": "ZBL",
+      "sorting": "m",
+      "color": "#453830",
+      "folders": [
+        {
+          "name": "Народы",
+          "sorting": "m",
+          "color": "#595047",
+          "packs": [
+            "zbl-core-nation",
+            "zbl-core-nation-features"
+          ],
+          "folders": []
+        },
+        {
+          "name": "Заклинания",
+          "sorting": "m",
+          "color": "#6e675f",
+          "packs": [
+            "zbl-core-spells"
+          ],
+          "folders": []
+        },
+        {
+          "name": "Артефакты",
+          "sorting": "m",
+          "color": "#827f76",
+          "packs": [
+            "zbl-core-artifact"
+          ],
+          "folders": []
+        }
+      ],
+      "packs": []
+    }
+  ],
   "packs": [
     {
       "name": "zbl-core-nation",
@@ -67,6 +105,30 @@
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
       },
+      "flags": {}
+    },
+    {
+      "name": "zbl-core-artifact",
+      "label": "# Артефакты",
+      "path": "packs/zbl-core-artifact",
+      "type": "Item",
+      "system": "dnd5e",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "zbl-core-spells",
+      "label": "# Заклинания",
+      "path": "packs/zbl-core-spells",
+      "type": "Item",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "system": "dnd5e",
       "flags": {}
     }
   ],
