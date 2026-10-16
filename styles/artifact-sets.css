@@ -1,0 +1,59 @@
+
+/* Скрываем настройки, если выбран другой тип особенности. */
+.zbl-artifact-set-fields[hidden] {
+    display: none !important;
+}
+
+/* Зона перетаскивания артефактов. */
+.zbl-artifact-drop-zone {
+    box-sizing: border-box;
+    padding: 1rem;
+    border: 2px dashed var(--color-border-light-2, #888);
+    border-radius: 6px;
+    text-align: center;
+    color: var(--color-text-secondary, #777);
+    background: var(--color-cool-5, transparent);
+    transition:
+        border-color 0.15s ease,
+        background-color 0.15s ease;
+}
+
+/* Подсветка при перетаскивании предмета. */
+.zbl-artifact-drop-zone.drag-over {
+    border-color: var(--color-border-highlight, #c6a15b);
+    background: var(--color-cool-4, rgba(198, 161, 91, 0.1));
+}
+
+/* Список требуемых артефактов. */
+.zbl-artifact-set-list {
+    margin: 0.75rem 0 0;
+    padding-left: 1.5rem;
+}
+
+/* Строка артефакта. */
+.zbl-artifact-set-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Название артефакта занимает свободное место. */
+.zbl-artifact-set-entry span {
+    flex: 1;
+    overflow-wrap: anywhere;
+}
+
+/* Кнопка удаления артефакта. */
+.zbl-artifact-set-remove {
+    flex: 0 0 auto;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+}
+
+/* Подсказка, если список пуст. */
+.zbl-artifact-set-empty {
+    color: var(--color-text-secondary, #777);
+    font-style: italic;
+}

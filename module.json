@@ -16,6 +16,9 @@
     },
     {
       "src": "styles/zbl-lang.css"
+    },
+    {
+      "src": "styles/artifact-sets.css"
     }
   ],
   "languages": [

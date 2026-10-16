@@ -1,25 +1,3 @@
-2026/10/16-15:11:34.163 5f48 Recovering log #42
-2026/10/16-15:11:34.163 5f48 Level-0 table #44: started
-2026/10/16-15:11:34.166 5f48 Level-0 table #44: 17433 bytes OK
-2026/10/16-15:11:34.173 5f48 Delete type=0 #42
-2026/10/16-15:11:34.173 5f48 Delete type=3 #40
-2026/10/16-15:14:17.625 4f8c Level-0 table #47: started
-2026/10/16-15:14:17.625 4f8c Level-0 table #47: 0 bytes OK
-2026/10/16-15:14:17.627 4f8c Delete type=0 #45
-2026/10/16-15:14:17.643 4f8c Manual compaction at level-0 from '!folders!37cBBIax7fFWsg8q' @ 72057594037927935 : 1 .. '!items.effects!TRhIxj2IOkn5Q15u.JRTg8wtbeHtAUtqN' @ 0 : 0; will stop at '!items.effects!n7AICpADtfcrWdB9.pr7MNj9BAYIwRk0i' @ 443 : 1
-2026/10/16-15:14:17.643 4f8c Compacting 2@0 + 1@1 files
-2026/10/16-15:14:17.675 4f8c Generated table #48@0: 15 keys, 23752 bytes
-2026/10/16-15:14:17.675 4f8c Compacted 2@0 + 1@1 files => 23752 bytes
-2026/10/16-15:14:17.676 4f8c compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/10/16-15:14:17.677 4f8c Delete type=2 #36
-2026/10/16-15:14:17.677 4f8c Delete type=2 #41
-2026/10/16-15:14:17.677 4f8c Delete type=2 #44
-2026/10/16-15:14:17.678 4f8c Manual compaction at level-0 from '!items.effects!n7AICpADtfcrWdB9.pr7MNj9BAYIwRk0i' @ 443 : 1 .. '!items.effects!TRhIxj2IOkn5Q15u.JRTg8wtbeHtAUtqN' @ 0 : 0; will stop at (end)
-2026/10/16-15:14:17.678 4f8c Manual compaction at level-1 from '!folders!37cBBIax7fFWsg8q' @ 72057594037927935 : 1 .. '!items.effects!TRhIxj2IOkn5Q15u.JRTg8wtbeHtAUtqN' @ 0 : 0; will stop at '!items.effects!TRhIxj2IOkn5Q15u.JRTg8wtbeHtAUtqN' @ 418 : 1
-2026/10/16-15:14:17.678 4f8c Compacting 1@1 + 1@2 files
-2026/10/16-15:14:17.689 4f8c Generated table #49@1: 23 keys, 33847 bytes
-2026/10/16-15:14:17.689 4f8c Compacted 1@1 + 1@2 files => 33847 bytes
-2026/10/16-15:14:17.690 4f8c compacted to: files[ 0 0 1 0 0 0 0 ]
-2026/10/16-15:14:17.690 4f8c Delete type=2 #30
-2026/10/16-15:14:17.690 4f8c Delete type=2 #48
-2026/10/16-15:14:17.697 4f8c Manual compaction at level-1 from '!items.effects!TRhIxj2IOkn5Q15u.JRTg8wtbeHtAUtqN' @ 418 : 1 .. '!items.effects!TRhIxj2IOkn5Q15u.JRTg8wtbeHtAUtqN' @ 0 : 0; will stop at (end)
+2026/10/17-02:03:23.957 5cfc Recovering log #53
+2026/10/17-02:03:23.963 5cfc Delete type=0 #53
+2026/10/17-02:03:23.963 5cfc Delete type=3 #52
