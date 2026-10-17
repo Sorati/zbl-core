@@ -8,11 +8,14 @@ const ZBL_AUTO_FLAG = "autoGrantedArtifactSet";
 const ZBL_SET_TYPE = "zblArtifactSet";
 
 let zblArtifactSetDefinitions = null;
+
+// Не допускаем одновременную синхронизацию одного персонажа.
 const zblArtifactSetSyncing = new Set();
 
-/**
- * Регистрируем новый тип особенности в стандартном списке D&D5e.
- */
+// Не допускаем повторной выдачи одной особенности в рамках синхронизации.
+const zblArtifactSetPending = new Set();
+
+
 Hooks.once("init", () => {
     CONFIG.DND5E.featureTypes[ZBL_SET_TYPE] = {
         label: "Особенность набора артефактов"
@@ -23,12 +26,13 @@ Hooks.once("init", () => {
     );
 });
 
-/**
- * Интерфейс настройки набора артефактов в листе особенности.
- */
+
+/* =========================================================
+   РЕДАКТОР НАБОРА АРТЕФАКТОВ
+   ========================================================= */
+
 async function zblRenderArtifactSetEditor(app, html) {
     const item = app.document ?? app.item;
-
     if (!item || item.type !== "feat") return;
 
     const root = html instanceof HTMLElement ? html : html?.[0];
@@ -40,14 +44,15 @@ async function zblRenderArtifactSetEditor(app, html) {
 
     if (!typeSelect) return;
 
-    // Не создаём интерфейс повторно при перерисовке листа.
     if (root.querySelector(".zbl-artifact-set-fields")) return;
 
     const typeGroup = typeSelect.closest(".form-group");
     if (!typeGroup) return;
 
-    const savedConfig =
-        item.getFlag(ZBL_MODULE_ID, ZBL_SET_FLAG) ?? {};
+    const savedConfig = item.getFlag(
+        ZBL_MODULE_ID,
+        ZBL_SET_FLAG
+    ) ?? {};
 
     let requiredItems = Array.isArray(savedConfig.requiredItems)
         ? structuredClone(savedConfig.requiredItems)
@@ -65,17 +70,26 @@ async function zblRenderArtifactSetEditor(app, html) {
 
     const dropZone = document.createElement("div");
     dropZone.className = "zbl-artifact-drop-zone";
-    dropZone.textContent =
-        "Перетащи сюда артефакты из компендиума «Артефакты»";
+    dropZone.innerHTML =
+        '<i class="fas fa-box-open"></i>' +
+        "<span>Перетащи сюда артефакты из компендиума «Артефакты»</span>";
 
-    const list = document.createElement("ol");
+    const container = document.createElement("div");
+    container.className = "zbl-artifact-set-container";
+
+    const header = document.createElement("div");
+    header.className = "zbl-artifact-set-header";
+    header.textContent = "Требуемые артефакты";
+
+    const list = document.createElement("div");
     list.className = "zbl-artifact-set-list";
 
-    fields.append(dropZone, list);
+    container.append(header, list);
+    fields.append(dropZone, container);
     section.append(label, fields);
 
-    // Вставляем сразу после стандартного поля «Тип».
     typeGroup.insertAdjacentElement("afterend", section);
+
 
     async function saveItems() {
         await item.setFlag(ZBL_MODULE_ID, ZBL_SET_FLAG, {
@@ -83,29 +97,51 @@ async function zblRenderArtifactSetEditor(app, html) {
         });
     }
 
-    function renderList() {
+
+    async function renderList() {
         list.replaceChildren();
 
         if (requiredItems.length === 0) {
-            const empty = document.createElement("li");
+            const empty = document.createElement("div");
             empty.className = "zbl-artifact-set-empty";
             empty.textContent = "Артефакты пока не добавлены.";
             list.append(empty);
             return;
         }
 
+        const TextEditor =
+            foundry.applications.ux.TextEditor.implementation;
+
         for (const artifact of requiredItems) {
-            const entry = document.createElement("li");
+            const entry = document.createElement("div");
             entry.className = "zbl-artifact-set-entry";
 
-            const name = document.createElement("span");
-            name.textContent = artifact.name;
+            const linkArea = document.createElement("div");
+            linkArea.className = "zbl-artifact-set-link-area";
+
+            const icon = document.createElement("img");
+            icon.className = "zbl-artifact-set-icon";
+            icon.src = artifact.img || "icons/svg/item-bag.svg";
+            icon.alt = artifact.name;
+            icon.title = artifact.name;
+
+            const link = document.createElement("span");
+            link.className = "zbl-artifact-set-link";
+
+            const linkMarkup =
+                `@UUID[${artifact.uuid}]{«${artifact.name}»}`;
+
+            link.innerHTML = await TextEditor.enrichHTML(
+                linkMarkup,
+                { async: true }
+            );
 
             const remove = document.createElement("button");
             remove.type = "button";
             remove.className = "zbl-artifact-set-remove";
-            remove.textContent = "Удалить";
+            remove.innerHTML = '<i class="fas fa-trash"></i>';
             remove.title = `Убрать ${artifact.name} из набора`;
+            remove.setAttribute("aria-label", remove.title);
 
             remove.addEventListener("click", async () => {
                 requiredItems = requiredItems.filter(
@@ -113,19 +149,22 @@ async function zblRenderArtifactSetEditor(app, html) {
                 );
 
                 await saveItems();
-                renderList();
+                await renderList();
             });
 
-            entry.append(name, remove);
+            linkArea.append(icon, link);
+            entry.append(linkArea, remove);
             list.append(entry);
         }
     }
+
 
     function updateVisibility() {
         section.hidden = typeSelect.value !== ZBL_SET_TYPE;
     }
 
     typeSelect.addEventListener("change", updateVisibility);
+
 
     dropZone.addEventListener("dragover", event => {
         event.preventDefault();
@@ -142,6 +181,7 @@ async function zblRenderArtifactSetEditor(app, html) {
 
         try {
             const raw = event.dataTransfer?.getData("text/plain");
+
             if (!raw) {
                 ui.notifications.warn(
                     "Не удалось прочитать перетаскиваемый предмет."
@@ -167,9 +207,10 @@ async function zblRenderArtifactSetEditor(app, html) {
                 return;
             }
 
-            if (!artifact.uuid.startsWith(
-                `Compendium.${ZBL_ARTIFACT_PACK_ID}.Item.`
-            )) {
+            const expectedPrefix =
+                `Compendium.${ZBL_ARTIFACT_PACK_ID}.Item.`;
+
+            if (!artifact.uuid.startsWith(expectedPrefix)) {
                 ui.notifications.warn(
                     "Выбирай предметы из компендиума ZBL-Core → Артефакты."
                 );
@@ -187,11 +228,12 @@ async function zblRenderArtifactSetEditor(app, html) {
 
             requiredItems.push({
                 uuid: artifact.uuid,
-                name: artifact.name
+                name: artifact.name,
+                img: artifact.img
             });
 
             await saveItems();
-            renderList();
+            await renderList();
 
         } catch (error) {
             console.error(
@@ -205,19 +247,22 @@ async function zblRenderArtifactSetEditor(app, html) {
         }
     });
 
-    renderList();
+    await renderList();
     updateVisibility();
 }
+
 
 Hooks.on("renderItemSheet5e", (app, html) => {
     void zblRenderArtifactSetEditor(app, html);
 });
 
-/**
- * Загружаем определения особенностей наборов из компендиума.
- */
+
+/* =========================================================
+   ЗАГРУЗКА ОПРЕДЕЛЕНИЙ ОСОБЕННОСТЕЙ
+   ========================================================= */
+
 async function zblGetArtifactSetDefinitions() {
-    if (zblArtifactSetDefinitions) {
+    if (zblArtifactSetDefinitions !== null) {
         return zblArtifactSetDefinitions;
     }
 
@@ -228,20 +273,21 @@ async function zblGetArtifactSetDefinitions() {
             `ZBL-Core | Не найден компендиум ${ZBL_FEATURE_PACK_ID}.`
         );
 
-        return [];
+        zblArtifactSetDefinitions = [];
+        return zblArtifactSetDefinitions;
     }
 
     const documents = await pack.getDocuments();
 
-    zblArtifactSetDefinitions = documents.filter(item => {
-        const config = item.getFlag(
+    zblArtifactSetDefinitions = documents.filter(definition => {
+        const config = definition.getFlag(
             ZBL_MODULE_ID,
             ZBL_SET_FLAG
         );
 
         return (
-            item.type === "feat" &&
-            item.system.type?.value === ZBL_SET_TYPE &&
+            definition.type === "feat" &&
+            definition.system.type?.value === ZBL_SET_TYPE &&
             Array.isArray(config?.requiredItems) &&
             config.requiredItems.length > 0
         );
@@ -250,9 +296,11 @@ async function zblGetArtifactSetDefinitions() {
     return zblArtifactSetDefinitions;
 }
 
-/**
- * Возвращает UUID исходного предмета из компендиума.
- */
+
+/* =========================================================
+   ПРОВЕРКА ИСТОЧНИКА ПРЕДМЕТА
+   ========================================================= */
+
 function zblGetSourceUuid(item) {
     return (
         item.flags?.core?.sourceId ??
@@ -261,9 +309,7 @@ function zblGetSourceUuid(item) {
     );
 }
 
-/**
- * Проверяем, есть ли у персонажа все нужные настроенные артефакты.
- */
+
 function zblHasRequiredArtifacts(actor, requiredItems) {
     return requiredItems.every(required => {
         return actor.items.some(item => {
@@ -275,13 +321,30 @@ function zblHasRequiredArtifacts(actor, requiredItems) {
     });
 }
 
-/**
- * Синхронизируем автоматически выдаваемые особенности.
- */
+
+/* =========================================================
+   РАБОТА С АВТОМАТИЧЕСКИ ВЫДАННЫМИ ОСОБЕННОСТЯМИ
+   ========================================================= */
+
+function zblGetAutoGrantedFeatures(actor, featureUuid) {
+    return actor.items.filter(item => {
+        if (item.type !== "feat") return false;
+
+        const marker = item.getFlag(
+            ZBL_MODULE_ID,
+            ZBL_AUTO_FLAG
+        );
+
+        return marker?.sourceUuid === featureUuid;
+    });
+}
+
+
 async function zblSyncArtifactSets(actor) {
     if (!actor || actor.type !== "character") return;
 
     const lockKey = actor.uuid ?? actor.id;
+
     if (zblArtifactSetSyncing.has(lockKey)) return;
 
     zblArtifactSetSyncing.add(lockKey);
@@ -290,87 +353,155 @@ async function zblSyncArtifactSets(actor) {
         const definitions = await zblGetArtifactSetDefinitions();
 
         for (const definition of definitions) {
+            const featureUuid = definition.uuid;
+
             const config = definition.getFlag(
                 ZBL_MODULE_ID,
                 ZBL_SET_FLAG
             );
 
             const requiredItems = config?.requiredItems ?? [];
-            const featureUuid = definition.uuid;
 
             const qualifies = zblHasRequiredArtifacts(
                 actor,
                 requiredItems
             );
 
-            // Ищем особенности, которые этот скрипт выдал автоматически.
-            const autoGranted = actor.items.filter(item => {
-                return (
-                    item.type === "feat" &&
-                    item.getFlag(ZBL_MODULE_ID, ZBL_AUTO_FLAG)
-                        ?.sourceUuid === featureUuid
-                );
-            });
+            let autoGranted = zblGetAutoGrantedFeatures(
+                actor,
+                featureUuid
+            );
 
-            // Если условия больше не выполнены, удаляем только
-            // особенности, помеченные как автоматически выданные.
+            /*
+             * Если условия набора больше не выполнены,
+             * удаляем только автоматически выданные особенности.
+             *
+             * Перед удалением заново проверяем, что каждый ID
+             * всё ещё принадлежит предмету на листе персонажа.
+             */
             if (!qualifies) {
-                if (autoGranted.length > 0) {
+                const idsToDelete = [
+                    ...new Set(
+                        autoGranted
+                            .filter(item => actor.items.has(item.id))
+                            .map(item => item.id)
+                    )
+                ];
+
+                if (idsToDelete.length > 0) {
                     await actor.deleteEmbeddedDocuments(
                         "Item",
-                        autoGranted.map(item => item.id)
+                        idsToDelete
                     );
                 }
 
                 continue;
             }
 
-            // Если особенность уже есть у персонажа вручную,
-            // второй экземпляр не создаём.
-            const alreadyHasFeature = actor.items.some(item => {
+            /*
+             * Если по ошибке уже существует несколько копий,
+             * оставляем одну и удаляем только остальные копии,
+             * помеченные нашим флагом.
+             */
+            if (autoGranted.length > 1) {
+                const idsToDelete = autoGranted
+                    .slice(1)
+                    .filter(item => actor.items.has(item.id))
+                    .map(item => item.id);
+
+                if (idsToDelete.length > 0) {
+                    await actor.deleteEmbeddedDocuments(
+                        "Item",
+                        idsToDelete
+                    );
+                }
+
+                autoGranted = zblGetAutoGrantedFeatures(
+                    actor,
+                    featureUuid
+                );
+            }
+
+            // Автоматическая копия уже есть — повторно не выдаём.
+            if (autoGranted.length > 0) continue;
+
+            /*
+             * Если особенность была добавлена вручную из
+             * компендиума, не создаём автоматическую копию.
+             */
+            const manuallyAdded = actor.items.some(item => {
                 if (item.type !== "feat") return false;
 
-                if (
-                    item.getFlag(ZBL_MODULE_ID, ZBL_AUTO_FLAG)
-                        ?.sourceUuid === featureUuid
-                ) {
-                    return true;
+                const marker = item.getFlag(
+                    ZBL_MODULE_ID,
+                    ZBL_AUTO_FLAG
+                );
+
+                if (marker?.sourceUuid === featureUuid) {
+                    return false;
                 }
 
                 return zblGetSourceUuid(item) === featureUuid;
             });
 
-            if (alreadyHasFeature) continue;
+            if (manuallyAdded) continue;
 
-            // Создаём копию особенности из компендиума.
-            const featureData = definition.toObject();
+            /*
+             * Дополнительный замок для конкретного персонажа
+             * и особенности. Не даём создать одну особенность
+             * повторно, пока операция создания не завершилась.
+             */
+            const pendingKey = `${lockKey}:${featureUuid}`;
 
-            delete featureData._id;
+            if (zblArtifactSetPending.has(pendingKey)) continue;
 
-            foundry.utils.setProperty(
-                featureData,
-                `flags.${ZBL_MODULE_ID}.${ZBL_AUTO_FLAG}`,
-                { sourceUuid: featureUuid }
-            );
+            zblArtifactSetPending.add(pendingKey);
 
-            await actor.createEmbeddedDocuments(
-                "Item",
-                [featureData]
-            );
+            try {
+                // Повторная проверка непосредственно перед созданием.
+                const nowExists = zblGetAutoGrantedFeatures(
+                    actor,
+                    featureUuid
+                ).length > 0;
+
+                if (nowExists) continue;
+
+                const featureData = definition.toObject();
+
+                delete featureData._id;
+
+                foundry.utils.setProperty(
+                    featureData,
+                    `flags.${ZBL_MODULE_ID}.${ZBL_AUTO_FLAG}`,
+                    { sourceUuid: featureUuid }
+                );
+
+                await actor.createEmbeddedDocuments(
+                    "Item",
+                    [featureData]
+                );
+
+            } finally {
+                zblArtifactSetPending.delete(pendingKey);
+            }
         }
+
     } catch (error) {
         console.error(
             `ZBL-Core | Ошибка синхронизации наборов артефактов персонажа ${actor.name}:`,
             error
         );
+
     } finally {
         zblArtifactSetSyncing.delete(lockKey);
     }
 }
 
-/**
- * Запускаем синхронизацию для персонажей.
- */
+
+/* =========================================================
+   ЗАПУСК СИНХРОНИЗАЦИИ
+   ========================================================= */
+
 async function zblSyncAllCharacterArtifactSets() {
     for (const actor of game.actors.contents) {
         if (actor.type === "character") {
@@ -379,27 +510,25 @@ async function zblSyncAllCharacterArtifactSets() {
     }
 }
 
-/**
- * Первичная проверка после загрузки мира.
- */
+
 Hooks.once("ready", () => {
     void zblSyncAllCharacterArtifactSets();
 });
 
-/**
- * Повторная проверка при изменении экипировки.
- */
+
 Hooks.on("createItem", item => {
     if (item.parent?.type === "character") {
         void zblSyncArtifactSets(item.parent);
     }
 });
 
+
 Hooks.on("updateItem", item => {
     if (item.parent?.type === "character") {
         void zblSyncArtifactSets(item.parent);
     }
 });
+
 
 Hooks.on("deleteItem", item => {
     if (item.parent?.type === "character") {
