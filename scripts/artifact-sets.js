@@ -701,13 +701,19 @@ async function zblSyncArtifactSetsOnce(actor) {
    ПОСЛЕДОВАТЕЛЬНАЯ СИНХРОНИЗАЦИЯ
    ========================================================= */
 
+
 async function zblSyncArtifactSets(actor) {
+    // Изменять предметы и особенности может только Мастер.
+    // Иначе каждый подключённый клиент будет запускать
+    // собственную синхронизацию и создавать дубликаты.
+    if (!game.user?.isGM) return;
+
     if (!actor || actor.type !== "character") return;
 
     const lockKey = actor.uuid ?? actor.id;
 
-    // Если синхронизация уже выполняется, не запускаем вторую
-    // параллельно, а запрашиваем повторный проход после первой.
+    // Если синхронизация уже выполняется, запрашиваем
+    // повторную проверку после завершения текущего прохода.
     if (zblArtifactSetSyncing.has(lockKey)) {
         zblArtifactSetRerun.add(lockKey);
         return;
@@ -717,8 +723,6 @@ async function zblSyncArtifactSets(actor) {
 
     try {
         do {
-            // Сбрасываем запрос перед проходом. Если новые события
-            // произойдут во время прохода, ключ будет добавлен снова.
             zblArtifactSetRerun.delete(lockKey);
 
             try {
@@ -733,8 +737,6 @@ async function zblSyncArtifactSets(actor) {
     } finally {
         zblArtifactSetSyncing.delete(lockKey);
 
-        // Если запрос появился на самой границе завершения,
-        // запускаем новый проход уже после снятия блокировки.
         if (zblArtifactSetRerun.has(lockKey)) {
             zblArtifactSetRerun.delete(lockKey);
             void zblSyncArtifactSets(actor);
@@ -744,6 +746,9 @@ async function zblSyncArtifactSets(actor) {
 
 
 async function zblSyncAllCharacterArtifactSets() {
+    // Только Мастер выполняет первоначальную синхронизацию.
+    if (!game.user?.isGM) return;
+
     for (const actor of game.actors.contents) {
         if (actor.type === "character") {
             await zblSyncArtifactSets(actor);
