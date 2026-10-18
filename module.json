@@ -56,7 +56,7 @@
         {
           "name": "Народы",
           "sorting": "m",
-          "color": "#595047",
+          "color": "#544a42",
           "packs": [
             "zbl-core-nation",
             "zbl-core-nation-features"
@@ -66,7 +66,7 @@
         {
           "name": "Заклинания",
           "sorting": "m",
-          "color": "#6e675f",
+          "color": "#645c53",
           "packs": [
             "zbl-core-spells"
           ],
@@ -75,10 +75,20 @@
         {
           "name": "Артефакты",
           "sorting": "m",
+          "color": "#736d65",
+          "packs": [
+            "zbl-core-artifact",
+            "zbl-core-artifact-features"
+          ],
+          "folders": []
+        },
+        {
+          "name": "Бестиарий",
+          "sorting": "m",
           "color": "#827f76",
           "packs": [
-            "zbl-core-artifact", 
-            "zbl-core-artifact-features"
+            "zbl-core-bestiary",
+            "zbl-core-bestiary-features"
           ],
           "folders": []
         }
@@ -139,6 +149,30 @@
       "name": "zbl-core-artifact-features",
       "label": "# Особенности артефактов",
       "path": "packs/zbl-core-artifact-features",
+      "type": "Item",
+      "system": "dnd5e",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "zbl-core-bestiary",
+      "label": "# Монстры",
+      "path": "packs/zbl-core-bestiary",
+      "type": "Actor",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "system": "dnd5e",
+      "flags": {}
+    },
+    {
+      "name": "zbl-core-bestiary-features",
+      "label": "# Особенности монстров",
+      "path": "packs/zbl-core-bestiary-features",
       "type": "Item",
       "ownership": {
         "PLAYER": "OBSERVER",
