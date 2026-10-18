@@ -126,6 +126,68 @@
 }
 
 
+
+/* =========================================================
+   РЕЖИМ ПРОСМОТРА — ИЗМЕНЕНИЕ ВЫКЛЮЧЕНО
+   ========================================================= */
+
+/* Контейнер списка сохраняет обычное расположение. */
+
+.zbl-artifact-set-container.is-viewing {
+    margin-top: 0.65rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Красная шапка остаётся видимой. */
+
+.zbl-artifact-set-container.is-viewing .zbl-artifact-set-header {
+    display: block;
+}
+
+/* Сохраняем рамку списка и фон контейнера. */
+
+.zbl-artifact-set-container.is-viewing .zbl-artifact-set-list {
+    gap: 3px;
+
+    padding: 3px;
+
+    border: 1px solid var(--color-border-light-2, #555);
+    border-top: 0;
+    border-radius: 0 0 4px 4px;
+
+    background: rgba(0, 0, 0, 0.12);
+}
+
+/* В режиме просмотра скрываем только корзину. */
+
+.zbl-artifact-set-container.is-viewing .zbl-artifact-set-remove {
+    display: none !important;
+}
+
+/* Ручка перестановки также скрыта. */
+
+.zbl-artifact-set-container.is-viewing .zbl-artifact-set-reorder {
+    display: none !important;
+}
+
+/* Строки артефактов сохраняют прежний внешний вид. */
+
+.zbl-artifact-set-container.is-viewing .zbl-artifact-set-entry {
+    min-height: 40px;
+    padding: 0.3rem 0.4rem;
+
+    border: 1px solid rgba(255, 255, 255, 0.035);
+    border-radius: 3px;
+
+    background: #292b32;
+}
+
+.zbl-artifact-set-container.is-viewing .zbl-artifact-set-entry:hover {
+    background: #33353d;
+}
+
+
+
 /* =========================================================
    СТРОКА АРТЕФАКТА
    ========================================================= */

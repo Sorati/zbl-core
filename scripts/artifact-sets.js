@@ -86,18 +86,30 @@ async function zblRenderArtifactSetEditor(app, html) {
 
 
     function isEditing() {
-        if (typeof app.isEditable === "boolean") return app.isEditable;
+    const form = root.matches("form")
+        ? root
+        : root.querySelector("form");
 
-        if (root.classList.contains("locked")) return false;
-        if (root.classList.contains("editable")) return true;
-
-        const form = root.matches("form") ? root : root.querySelector("form");
-
-        if (form?.classList.contains("locked")) return false;
-        if (form?.classList.contains("editable")) return true;
-
+    // Сначала проверяем явное состояние блокировки окна.
+    if (
+        root.classList.contains("locked") ||
+        form?.classList.contains("locked")
+    ) {
         return false;
     }
+
+    // Затем проверяем явное состояние режима редактирования.
+    if (
+        root.classList.contains("editable") ||
+        form?.classList.contains("editable")
+    ) {
+        return true;
+    }
+
+    // Запасная проверка: может ли пользователь редактировать документ.
+    // Это не гарантирует, что режим редактирования сейчас включён.
+    return false;
+}
 
 
     function updateVisibility() {
@@ -505,26 +517,37 @@ function zblItemMatchesRequired(actorItem, required) {
 }
 
 
+
 function zblHasRequiredArtifacts(actor, requiredItems) {
+    if (!Array.isArray(requiredItems) || requiredItems.length === 0) {
+        return false;
+    }
+
     return requiredItems.every(required => {
-        return actor.items.some(item => {
-            if (!zblItemMatchesRequired(item, required)) return false;
+        const matchingItem = actor.items.find(item =>
+            zblItemMatchesRequired(item, required)
+        );
 
-            // Если предмет требует настройки, он засчитывается
-            // только после того, как настройка завершена.
-            const attunement = item.system?.attunement;
+        if (!matchingItem) return false;
 
-            const requiresAttunement =
-                attunement === true ||
-                attunement === "required" ||
-                attunement === 2;
+        const item = matchingItem;
+        const attunement = item.system?.attunement;
+        const attuned = item.system?.attuned;
 
-            if (requiresAttunement && item.system?.attuned !== true) {
-                return false;
-            }
+        const requiresAttunement =
+            attunement === true ||
+            attunement === "required" ||
+            attunement === 2;
 
-            return true;
-        });
+        if (!requiresAttunement) return true;
+
+        // Поддерживаем булево, числовое и строковое
+        // представление состояния настройки.
+        return (
+            attuned === true ||
+            attuned === 1 ||
+            attuned === "attuned"
+        );
     });
 }
 
@@ -547,26 +570,27 @@ function zblGetAutoGrantedFeatures(actor, featureUuid) {
 async function zblDeleteAutoGrantedFeatures(actor, features) {
     if (!actor || !features?.length) return;
 
-    // Получаем актуальные ID непосредственно перед удалением.
-    // Не передаём Foundry ID документов, которых уже нет на листе.
+    // Сохраняем только уникальные ID существующих особенностей.
     const idsToDelete = [
         ...new Set(
             features
                 .map(item => item.id)
                 .filter(id => id && actor.items.has(id))
         )
-    ].filter(id => actor.items.has(id));
+    ];
 
     if (!idsToDelete.length) return;
 
     try {
         await actor.deleteEmbeddedDocuments("Item", idsToDelete);
     } catch (error) {
-        // За время ожидания документ мог быть удалён другим действием.
-        // Повторно проверяем актуальное состояние и не пытаемся удалять
-        // те же отсутствующие документы снова.
-        const remainingIds = idsToDelete.filter(id => actor.items.has(id));
+        // После ошибки проверяем, остались ли эти документы.
+        const remainingIds = idsToDelete.filter(id =>
+            actor.items.has(id)
+        );
 
+        // Если все документы уже исчезли, повторное удаление
+        // не требуется.
         if (!remainingIds.length) return;
 
         console.error(
@@ -575,6 +599,7 @@ async function zblDeleteAutoGrantedFeatures(actor, features) {
         );
     }
 }
+
 
 
 /* =========================================================
