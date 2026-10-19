@@ -66,7 +66,7 @@
 
 
 /* =========================================================
-   КОНТЕЙНЕР СПИСКА
+   КОНТЕЙНЕР СПИСКА АРТЕФАКТОВ
    ========================================================= */
 
 .zbl-artifact-set-container {
@@ -82,7 +82,9 @@
 }
 
 
-/* Заголовок списка */
+/* =========================================================
+   ЗАГОЛОВОК СПИСКА
+   ========================================================= */
 
 .zbl-artifact-set-header {
     display: block;
@@ -92,7 +94,7 @@
     margin: 0;
     padding: 0.4rem 0.6rem;
 
-    border: 1px solid var(--color-border-light-2, #555);
+    border: 1px solid #54252c;
     border-radius: 4px 4px 0 0;
 
     color: var(--color-text-primary, #eee);
@@ -105,7 +107,9 @@
 }
 
 
-/* Сам список */
+/* =========================================================
+   СПИСОК АРТЕФАКТОВ
+   ========================================================= */
 
 .zbl-artifact-set-list {
     display: flex;
@@ -118,7 +122,7 @@
     margin: 0;
     padding: 3px;
 
-    border: 1px solid var(--color-border-light-2, #555);
+    border: 1px solid #434857;
     border-top: 0;
     border-radius: 0 0 4px 4px;
 
@@ -126,52 +130,57 @@
 }
 
 
-
 /* =========================================================
-   РЕЖИМ ПРОСМОТРА — ИЗМЕНЕНИЕ ВЫКЛЮЧЕНО
+   РЕЖИМ ПРОСМОТРА — РЕДАКТИРОВАНИЕ ВЫКЛЮЧЕНО
    ========================================================= */
 
-/* Контейнер списка сохраняет обычное расположение. */
-
+/* Сохраняем расположение контейнера. */
 .zbl-artifact-set-container.is-viewing {
     margin-top: 0.65rem;
     margin-bottom: 0.25rem;
 }
 
-/* Красная шапка остаётся видимой. */
-
+/* По умолчанию заголовок остаётся видимым. */
 .zbl-artifact-set-container.is-viewing .zbl-artifact-set-header {
     display: block;
 }
 
-/* Сохраняем рамку списка и фон контейнера. */
-
-.zbl-artifact-set-container.is-viewing .zbl-artifact-set-list {
-    gap: 3px;
-
-    padding: 3px;
-
-    border: 1px solid var(--color-border-light-2, #555);
-    border-top: 0;
-    border-radius: 0 0 4px 4px;
-
-    background: rgba(0, 0, 0, 0.12);
+/*
+ * ПУСТОЙ СПИСОК В РЕЖИМЕ ПРОСМОТРА
+ *
+ * Убираем заголовок, рамку, фон и внутренние отступы
+ * списка. Остаётся только сообщение о пустом списке.
+ */
+.zbl-artifact-set-container.is-viewing:has(.zbl-artifact-set-empty)
+.zbl-artifact-set-header {
+    display: none !important;
 }
 
-/* В режиме просмотра скрываем только корзину. */
+.zbl-artifact-set-container.is-viewing:has(.zbl-artifact-set-empty)
+.zbl-artifact-set-list {
+    display: block;
 
+    margin: 0;
+    padding: 0;
+
+    border: none;
+    border-radius: 0;
+
+    background: transparent;
+    box-shadow: none;
+}
+
+/* В режиме просмотра скрываем кнопку удаления. */
 .zbl-artifact-set-container.is-viewing .zbl-artifact-set-remove {
     display: none !important;
 }
 
-/* Ручка перестановки также скрыта. */
-
+/* В режиме просмотра скрываем ручку перестановки. */
 .zbl-artifact-set-container.is-viewing .zbl-artifact-set-reorder {
     display: none !important;
 }
 
-/* Строки артефактов сохраняют прежний внешний вид. */
-
+/* Оформление строк артефактов в режиме просмотра. */
 .zbl-artifact-set-container.is-viewing .zbl-artifact-set-entry {
     min-height: 40px;
     padding: 0.3rem 0.4rem;
@@ -185,7 +194,6 @@
 .zbl-artifact-set-container.is-viewing .zbl-artifact-set-entry:hover {
     background: #33353d;
 }
-
 
 
 /* =========================================================
@@ -217,7 +225,9 @@
 }
 
 
-/* Область с иконкой и названием */
+/* =========================================================
+   ОБЛАСТЬ С ИКОНКОЙ И НАЗВАНИЕМ
+   ========================================================= */
 
 .zbl-artifact-set-link-area {
     display: flex;
@@ -229,7 +239,9 @@
 }
 
 
-/* Иконка артефакта */
+/* =========================================================
+   ИКОНКА АРТЕФАКТА
+   ========================================================= */
 
 .zbl-artifact-set-icon {
     display: block;
@@ -249,7 +261,9 @@
 }
 
 
-/* Название и ссылка */
+/* =========================================================
+   НАЗВАНИЕ И ССЫЛКА НА АРТЕФАКТ
+   ========================================================= */
 
 .zbl-artifact-set-link {
     min-width: 0;
@@ -261,9 +275,7 @@
     line-height: 1.35;
 }
 
-
-/* Ссылки Foundry на предметы */
-
+/* Ссылки Foundry на предметы. */
 .zbl-artifact-set-link a.content-link,
 .zbl-artifact-set-link a.entity-link {
     display: inline;
@@ -332,7 +344,7 @@
 
 
 /* =========================================================
-   ПУСТОЙ СПИСОК
+   СООБЩЕНИЕ О ПУСТОМ СПИСКЕ
    ========================================================= */
 
 .zbl-artifact-set-empty {
