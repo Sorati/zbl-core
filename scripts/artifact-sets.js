@@ -509,13 +509,93 @@ function zblGetSourceUuid(item) {
 
 
 function zblItemMatchesRequired(actorItem, required) {
-    if (actorItem.uuid === required.uuid) return true;
+    const sourceUuid = zblGetSourceUuid(actorItem);
 
-    if (zblGetSourceUuid(actorItem) === required.uuid) return true;
+    // 1. Точное совпадение UUID.
+    if (actorItem.uuid === required.uuid) {
+        return true;
+    }
+
+    // 2. Совпадение по стандартному UUID источника Foundry.
+    if (sourceUuid === required.uuid) {
+        return true;
+    }
+
+    // 3. Совпадение по собственному флагу ZBL-Core.
+    const zblSourceUuid = actorItem.getFlag(
+        ZBL_MODULE_ID,
+        "artifactSourceUuid"
+    );
+
+    if (zblSourceUuid === required.uuid) {
+        return true;
+    }
 
     return false;
 }
 
+
+async function zblRestoreArtifactSourceUuids(actor, definitions) {
+    if (!game.user?.isGM) return;
+
+    for (const definition of definitions) {
+        const config = definition.getFlag(
+            ZBL_MODULE_ID,
+            ZBL_SET_FLAG
+        );
+
+        const requiredItems = config?.requiredItems ?? [];
+
+        for (const required of requiredItems) {
+            // Если исходный предмет доступен, используем его
+            // для проверки корректности связи.
+            const sourceItem = await fromUuid(required.uuid);
+
+            if (!sourceItem || sourceItem.documentName !== "Item") {
+                continue;
+            }
+
+            // Ищем предметы персонажа с точным совпадением имени.
+            const candidates = actor.items.filter(item =>
+                item.type === sourceItem.type &&
+                item.name === sourceItem.name
+            );
+
+            // Не назначаем источник, если название неоднозначно.
+            if (candidates.length !== 1) continue;
+
+            const actorItem = candidates[0];
+
+            // Уже есть другая подтверждённая связь — не перезаписываем.
+            const existingSource = actorItem.getFlag(
+                ZBL_MODULE_ID,
+                "artifactSourceUuid"
+            );
+
+            if (
+                existingSource &&
+                existingSource !== required.uuid
+            ) {
+                continue;
+            }
+
+            // Стандартный источник Foundry указывает на другой предмет.
+            const coreSource = zblGetSourceUuid(actorItem);
+
+            if (coreSource && coreSource !== required.uuid) {
+                continue;
+            }
+
+            if (existingSource !== required.uuid) {
+                await actorItem.setFlag(
+                    ZBL_MODULE_ID,
+                    "artifactSourceUuid",
+                    required.uuid
+                );
+            }
+        }
+    }
+}
 
 
 function zblHasRequiredArtifacts(actor, requiredItems) {
@@ -608,6 +688,8 @@ async function zblDeleteAutoGrantedFeatures(actor, features) {
 
 async function zblSyncArtifactSetsOnce(actor) {
     const definitions = await zblGetArtifactSetDefinitions();
+    
+    await zblRestoreArtifactSourceUuids(actor, definitions);
 
     for (const definition of definitions) {
         const featureUuid = definition.uuid;
@@ -618,6 +700,19 @@ async function zblSyncArtifactSetsOnce(actor) {
         const qualifies =
             requiredItems.length > 0 &&
             zblHasRequiredArtifacts(actor, requiredItems);
+
+        console.log("ZBL-Core | Проверка набора:", {
+            feature: definition.name,
+            requiredCount: requiredItems.length,
+            qualifies,
+            requiredItems: requiredItems.map(required => ({
+                name: required.name,
+                uuid: required.uuid,
+                found: actor.items.some(item =>
+                    zblItemMatchesRequired(item, required)
+                )
+            }))}
+        );
 
         let autoGranted = zblGetAutoGrantedFeatures(actor, featureUuid);
 
