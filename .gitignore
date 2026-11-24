@@ -1,7 +1,7 @@
 # Временные и диагностические файлы LevelDB внутри компендиев
-packs/**/LOCK
-packs/**/LOG
-packs/**/LOG.old
+# packs/**/LOCK
+# packs/**/LOG
+# packs/**/LOG.old
 
 # Зависимости Node.js
 node_modules/

@@ -1,2 +1,2 @@
-packs/** binary
-*.psd filter=lfs diff=lfs merge=lfs -text
+# packs/** binary
+# *.psd filter=lfs diff=lfs merge=lfs -text
